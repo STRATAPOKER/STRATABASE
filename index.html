@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Архив тренировок STRATA</title>
+  <style>
+    body {font-family: Arial, sans-serif; background:#0e0e0e; color:#ddd; margin:0; padding:20px;}
+    h1 {text-align:center; color:#fff;}
+    #search {display:block; margin:20px auto; width:80%; max-width:500px; padding:10px; font-size:16px; border:1px solid #333; border-radius:8px; background:#1c1c1c; color:#ddd;}
+    #filters {text-align:center; margin-bottom:20px;}
+    .filter-btn {background:#222; border:1px solid #333; border-radius:6px; color:#ccc; padding:8px 12px; margin:5px; cursor:pointer; transition:0.2s;}
+    .filter-btn:hover {background:#333; color:#4db8ff;}
+    .training {background:#1b1b1b; border-radius:10px; margin:10px auto; padding:15px 20px; box-shadow:0 0 10px #000; max-width:800px; transition:0.2s;}
+    .training:hover {background:#222;}
+    .training p {margin:4px 0; line-height:1.4;}
+    .number {color:#4db8ff; font-weight:bold; margin-right:5px;}
+    .filename {font-weight:bold; color:#fff;}
+    a {color:#4db8ff; text-decoration:none;}
+    a:hover {text-decoration:underline;}
+  </style>
+</head>
+<body>
+
+  <h1>Архив тренировок STRATA</h1>
+  <input type="text" id="search" placeholder="Поиск по названию, тренеру...">
+  <div id="filters"></div>
+  <div id="trainings"></div>
+
+  <script>
+const allTrainings = [
+  {
+    "number": 1,
+    "file": "20250603_INCEPT",
+    "title": "Обзор RocketSolver Построение эксплойтов в стилловых позициях",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-06-03",
+    "duration": "2 ч. 1 мин.",
+    "link": "https://t.me/c/2571863441/13",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 2,
+    "file": "20250605_FREDIK",
+    "title": "Разбор сессии ученика PokerDom Boost NL10",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-06-05",
+    "duration": "2 ч. 30 мин.",
+    "link": "https://t.me/c/2571863441/14",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 3,
+    "file": "20250606_INCEPT",
+    "title": "Играю и Объясняю, GG R&C NL25, Эксплуатация на практике",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-06-06",
+    "duration": "2 ч. 2 мин.",
+    "link": "https://t.me/c/2571863441/15",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 4,
+    "file": "20250609_PreflopRC_P1",
+    "title": "Весь Префлоп в быстром покере Часть 1",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-06-09",
+    "duration": "1 ч. 27 мин.",
+    "link": "https://t.me/c/2571863441/16",
+    "tags": ["Preflop", "Incept"]
+  },
+  {
+    "number": 5,
+    "file": "20250609_PreflopRC_P2",
+    "title": "Весь Префлоп в быстром покере Часть 2",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-06-09",
+    "duration": "1 ч. 45 мин.",
+    "link": "https://t.me/c/2571863441/17",
+    "tags": ["Preflop", "Incept"]
+  },
+  {
+    "number": 6,
+    "file": "20250610_INCEPT",
+    "title": "Разбор сессии ученика PokerStars Zoom NL25",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-06-10",
+    "duration": "2 ч. 44 мин.",
+    "link": "https://t.me/c/2571863441/18",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 7,
+    "file": "20250612_FREDIK",
+    "title": "Игра против фишей, Линии с макс EV, Овербеты 10х, Блокировка реализации эквити",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-06-12",
+    "duration": "1 ч. 48 мин.",
+    "link": "https://t.me/c/2571863441/19",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 8,
+    "file": "20250615_INCEPT",
+    "title": "Игра тренера NL50 RUSH, Концепции бетсайзингов во всех спотах, + Психология: Как перестать оплачивать и находить кнопку FOLD",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-06-15",
+    "duration": "7 ч. 21 мин.",
+    "link": "https://t.me/c/2571863441/20",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 9,
+    "file": "20250616_ZAGER_NL200",
+    "title": "Разбор часовой сессии ученика в руме RedStar, обсуждение стратегий игры против фишей, эксплуатация оппонентов, лимпы в ранней позиции",
+    "trainer": "Владимир @ZagerVl Рабочие лимиты тренера NL100-NL200",
+    "date": "2025-06-16",
+    "duration": "1 ч. 48 мин.",
+    "link": "https://t.me/c/2571863441/22",
+    "tags": ["Zager"]
+  },
+  {
+    "number": 10,
+    "file": "20250616_FREDIK",
+    "title": "Разбор сессии ученика PokerStars Zoom NL25 Часть 2",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-06-16",
+    "duration": "0 ч. 59 мин.",
+    "link": "https://t.me/c/2571863441/23",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 11,
+    "file": "20250619_FREDIK",
+    "title": "Построение правильной логики принятия решений Как подбирать сайзинги на флопе Исправление системных ошибок мышления",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-06-19",
+    "duration": "3 ч. 0 мин.",
+    "link": "https://t.me/c/2571863441/25",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 12,
+    "file": "20250620_FREDIK",
+    "title": "Принципы, критерии и техника селекта в сети iPoker, обзор софта, лайфхаки и секреты для прибыльной игры",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-06-20",
+    "duration": "0 ч. 56 мин.",
+    "link": "https://t.me/c/2571863441/26",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 13,
+    "file": "Паттерны ставок",
+    "title": "Три обучающих видео — выжимка всей покерной теории по всем спотам и ключевым темам PDF с конспектом по материалу Отдельный PDF с паттернами ставок по Linus Leliger",
+    "trainer": "Игорь Maximysss85 @IgorYfimtsev",
+    "date": "2025-06-24",
+    "duration": "Часть 3 - 1 ч. 17 мин.",
+    "link": "https://t.me/c/2571863441/30",
+    "tags": []
+  },
+  {
+    "number": 14,
+    "file": "20250624_FREDIK",
+    "title": "Разбор игры ученика R&C NL10 Капнутость диапазонов Подбор сайзингов для велью и блефа в различных ситуациях Исправление системных ошибок мышления",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-06-24",
+    "duration": "3 ч. 17 мин.",
+    "link": "https://t.me/c/2571863441/33",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 15,
+    "file": "20250626_DavyJones",
+    "title": "Разбор Дейви Джонса - игра против фишей, паттерны ставок, сайзинги изолейтов, логика реализации эквити, донки и блокбеты",
+    "trainer": "Илья @Fredik88 & Дмитрий @stratasupport",
+    "date": "2025-06-26",
+    "duration": "1 ч. 33 мин.",
+    "link": "https://t.me/c/2571863441/34",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 16,
+    "file": "20250627_INCEPT",
+    "title": "Построение эксплойтных стратегий в 3бет банках Как наказывать эниту-контбеты Игра на терне и ривере после чек-рейза флопа Нодлоки в GTO Wizard AI",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-06-27",
+    "duration": "1 ч. 20 мин.",
+    "link": "https://t.me/c/2571863441/35",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 17,
+    "file": "20250629_PART_5",
+    "title": "15 часов контента — Александр Incept в формате \"Играю и Объясняю\" наглядно демонстрирует свой подход к быстрому покеру Игра в руме VangPoker NL25 & NL50 Доминация над полем Эксплойты на практике Игра в глубоких стеках",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-06-29",
+    "duration": "Часть 5 - 3 ч. 58 мин.",
+    "link": "https://t.me/c/2571863441/38",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 18,
+    "file": "20250630_ROBERT_7",
+    "title": "8 тренировок разборы сессий учеников с низких и средних лимитов Ты поймёшь, почему большинство игроков застревают на NL10–NL50, и что делает Роберт, чтобы стабильно выигрывать на NL200-NL500",
+    "trainer": "Роберт @RUBINSWIN",
+    "date": "2025-06-30",
+    "duration": "",
+    "link": "https://t.me/c/2571863441/46",
+    "tags": ["Robert"]
+  },
+  {
+    "number": 19,
+    "file": "20250701_Algoritm",
+    "title": "Алгоритм работы над игрой GTO Wizard Пошаговая инструкция",
+    "trainer": "Дмитрий @stratasupport",
+    "date": "2025-07-01",
+    "duration": "0 ч. 48 мин.",
+    "link": "https://t.me/c/2571863441/51",
+    "tags": ["Solver"]
+  },
+  {
+    "number": 20,
+    "file": "20250701_INCEPT",
+    "title": "Разбор сессии подписчика с GG R&C NL50",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-07-01",
+    "duration": "2 ч. 28 мин.",
+    "link": "https://t.me/c/2571863441/53",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 21,
+    "file": "20250703_DavyJones",
+    "title": "Разбор Дейви Джонса - игра против фишей",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-03",
+    "duration": "1 ч. 17 мин.",
+    "link": "https://t.me/c/2571863441/54",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 22,
+    "file": "20250708_FREDIK",
+    "title": "Разбор сессии подписчика с PD NL10",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-08",
+    "duration": "2 ч. 23 мин.",
+    "link": "https://t.me/c/2571863441/55",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 23,
+    "file": "20250710_FREDIK",
+    "title": "Прорабатываем важный винрейто-образующий спот SRP BUvsBB в GTOW AI",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-10",
+    "duration": "1 ч. 44 мин.",
+    "link": "https://t.me/c/2571863441/56",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 24,
+    "file": "20250711_INCEPT",
+    "title": "Разбор раздач подписчиков Общение Ответы на вопросы",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-07-11",
+    "duration": "1 ч. 51 мин.",
+    "link": "https://t.me/c/2571863441/57",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 25,
+    "file": "20250715_INCEPT",
+    "title": "Разбор игры ученика PD NL5000 Подбор сайзингов для велью и блефа в различных ситуациях Исправление системных ошибок мышления",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-07-15",
+    "duration": "2 ч. 4 мин.",
+    "link": "https://t.me/c/2571863441/58",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 26,
+    "file": "20250717_FREDIK",
+    "title": "Прорабатываем важный винрейто-образующий спот SRP BBvsBU в GTOW AI",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-17",
+    "duration": "1 ч. 35 мин.",
+    "link": "https://t.me/c/2571863441/59",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 27,
+    "file": "20250717_SELECT",
+    "title": "Урок на тему селекта, очень важный и полезный материал",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-17",
+    "duration": "1 ч. 49 мин.",
+    "link": "https://t.me/c/2571863441/61",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 28,
+    "file": "20250718_INCEPT",
+    "title": "Работа в RocketSolver - игра на баттоне",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-07-18",
+    "duration": "1 ч. 27 мин.",
+    "link": "https://t.me/c/2571863441/62",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 29,
+    "file": "20250720_FREDIK",
+    "title": "Разбор раздач NL50-NL400",
+    "trainer": "Илья @Fredik88 & Александр @Inceptmork",
+    "date": "2025-07-20",
+    "duration": "2 ч. 24 мин.",
+    "link": "https://t.me/c/2571863441/64",
+    "tags": ["Incept", "Fredik"]
+  },
+  {
+    "number": 30,
+    "file": "20250722_RB",
+    "title": "Разбор базы Ipoker NL20",
+    "trainer": "Дмитрий @stratasupport",
+    "date": "2025-07-22",
+    "duration": "1 ч. 19 мин.",
+    "link": "https://t.me/c/2571863441/69",
+    "tags": []
+  },
+  {
+    "number": 31,
+    "file": "20250722_FREDIK",
+    "title": "Разбор сессии WPN (ACR) NL25",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-22",
+    "duration": "2 ч. 17 мин.",
+    "link": "https://t.me/c/2571863441/70",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 32,
+    "file": "20250723_ZagerV",
+    "title": "Разбор сессии R&C NL25 Ответы на вопросы ученика Индивидуальная тренировка",
+    "trainer": "Владимир @ZagerVl",
+    "date": "2025-07-23",
+    "duration": "2 ч. 37 мин.",
+    "link": "https://t.me/c/2571863441/71",
+    "tags": ["Zager"]
+  },
+  {
+    "number": 33,
+    "file": "20250724_FREDIK",
+    "title": "Прорабатываем важный винрейто-образующий спот 3BP SBvsBU в GTOW AI",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-24",
+    "duration": "1 ч. 49 мин.",
+    "link": "https://t.me/c/2571863441/72",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 34,
+    "file": "20250726_INCEPT",
+    "title": "Сессия тренера R&C NL50 Ответы на вопросы Важность игры в глубоких стеках",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-07-26",
+    "duration": "4 ч. 00 мин.",
+    "link": "https://t.me/c/2571863441/74",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 35,
+    "file": "20250728_NIKITA",
+    "title": "Сессия тренера NL50-NL100 iPoker (Champion)",
+    "trainer": "Никита Рабочие лимиты тренера NL100-NL200",
+    "date": "2025-07-28",
+    "duration": "1 ч. 22 мин.",
+    "link": "https://t.me/c/2571863441/75",
+    "tags": ["Nikita"]
+  },
+  {
+    "number": 36,
+    "file": "20250729_INCEPT",
+    "title": "Разбор сессии подписчика 4 стола, быстрый покер на NL50 Ответы на вопросы Беседы о тильте",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-07-29",
+    "duration": "2 ч. 13 мин.",
+    "link": "https://t.me/c/2571863441/76",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 37,
+    "file": "20250731_FREDIK",
+    "title": "Прорабатываем важный винрейто-образующий спот 3BP SBvsBU Caller в GTOW AI",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-07-31",
+    "duration": "2 ч. 03 мин.",
+    "link": "https://t.me/c/2571863441/77",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 38,
+    "file": "20250801_INCEPT",
+    "title": "Разбор сессии подписчика 4 стола, быстрый покер на NL50 Ответы на вопросы Часть 2",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-01",
+    "duration": "1 ч. 55 мин.",
+    "link": "https://t.me/c/2571863441/78",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 39,
+    "file": "20250805_FREDIK",
+    "title": "Прорабатываем важный винрейто-образующий спот 3BP BvB в GTOW AI",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-05",
+    "duration": "2 ч. 14 мин.",
+    "link": "https://t.me/c/2571863441/79",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 40,
+    "file": "20250807_NIKITA",
+    "title": "Сессия тренера NL50-NL100 iPoker (Champion)",
+    "trainer": "Никита Рабочие лимиты тренера NL100-NL200",
+    "date": "2025-08-07",
+    "duration": "1 ч. 22 мин.",
+    "link": "https://t.me/c/2571863441/80",
+    "tags": ["Nikita"]
+  },
+  {
+    "number": 41,
+    "file": "20250807_FREDIK",
+    "title": "Прорабатываем важный винрейто-образующий спот 3BP BvB в GTOW AI Часть 2 Акцент на игру риверов",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-07",
+    "duration": "2 ч. 25 мин.",
+    "link": "https://t.me/c/2571863441/81",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 42,
+    "file": "20250808_INCEPT",
+    "title": "Префлоп Работа в RocketSolverAI Как наказывать 100% стилл с BU & SB Механика префлопа Механика солверов Долгосрочные эксплойты против гонщиков R&C",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-08",
+    "duration": "2 ч. 16 мин.",
+    "link": "https://t.me/c/2571863441/82",
+    "tags": ["Solver", "Preflop", "Incept"]
+  },
+  {
+    "number": 43,
+    "file": "20250811_NIKITA",
+    "title": "Сессия тренера NL50-NL100 iPoker (Champion)",
+    "trainer": "Никита Рабочие лимиты тренера NL100-NL200",
+    "date": "2025-08-11",
+    "duration": "1 ч. 16 мин.",
+    "link": "https://t.me/c/2571863441/83",
+    "tags": ["Nikita"]
+  },
+  {
+    "number": 44,
+    "file": "20250812_FREDIK",
+    "title": "Разбор сессии RedStar (iPoker) NL20 Игра на 6 столах Рекомендации по игре в этом руме",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-12",
+    "duration": "1 ч. 58 мин.",
+    "link": "https://t.me/c/2571863441/84",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 45,
+    "file": "20250814_FREDIK",
+    "title": "Разминка в тренажере GTO Wizard",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-14",
+    "duration": "0 ч. 41 мин.",
+    "link": "https://t.me/c/2571863441/85",
+    "tags": ["Solver", "Fredik"]
+  },
+  {
+    "number": 46,
+    "file": "20250815_INCEPT",
+    "title": "GTO Wizard Мощное Обновление, Мультипоты на Постфлопе",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-15",
+    "duration": "1 ч. 50 мин.",
+    "link": "https://t.me/c/2571863441/86",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 47,
+    "file": "20250816_INCEPT",
+    "title": "GTO Wizard, мощный разбор спота SBvsBB SRP Секреты Овербетов флопа Игра на поздних улицах Дорогие блефы Супер-тонкие велью-беты",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-16",
+    "duration": "2 ч. 36 мин.",
+    "link": "https://t.me/c/2571863441/87",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 48,
+    "file": "20250817_INCEPT",
+    "title": "GTO Wizard, практика спота SBvsBB SRP",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-17",
+    "duration": "2 ч. 02 мин.",
+    "link": "https://t.me/c/2571863441/88",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 49,
+    "file": "20250819_FREDIK",
+    "title": "Мощный разбор фундаментальных ошибок на R&C NL10",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-19",
+    "duration": "3 ч. 02 мин.",
+    "link": "https://t.me/c/2571863441/95",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 50,
+    "file": "20250819_PREFLOP",
+    "title": "Весь Префлоп GTO оптимизации Опенрейзы 3беты 4беты Оптимальная защита на BB против всех поз Бонус: в комплекте Ресерчи поля NL10 & NL100",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-19",
+    "duration": "0 ч. 15 мин.",
+    "link": "https://t.me/c/2571863441/93",
+    "tags": ["Preflop", "Fredik"]
+  },
+  {
+    "number": 51,
+    "file": "20250821_FREDIK",
+    "title": "Лайв-сессия тренера с подробными комментариями PD NL10 (быстрый покер)",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-21",
+    "duration": "2 ч. 00 мин.",
+    "link": "https://t.me/c/2571863441/96",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 52,
+    "file": "20250822_INCEPT",
+    "title": "Лайв-сессия тренера R&C NL50 Общение в голосовом чате",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-22",
+    "duration": "3 ч. 57 мин.",
+    "link": "https://t.me/c/2571863441/97",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 53,
+    "file": "20250823_INCEPT",
+    "title": "Лайв-сессия тренера R&C NL50 Общение в голосовом чате",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-23",
+    "duration": "3 ч. 32 мин.",
+    "link": "https://t.me/c/2571863441/98",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 54,
+    "file": "20250826_ITALIA",
+    "title": "Разбор сессии ученика на лимитах NL25-NL100 в резервации iPoker Italia",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-26",
+    "duration": "1 ч. 57 мин.",
+    "link": "https://t.me/c/2571863441/99",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 55,
+    "file": "20250828_FREDIK",
+    "title": "Работа в GTO Wizard BB vs SB",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-08-28",
+    "duration": "1 ч. 38 мин.",
+    "link": "https://t.me/c/2571863441/100",
+    "tags": ["Solver", "Fredik"]
+  },
+  {
+    "number": 56,
+    "file": "20250829_INCEPT",
+    "title": "Работа в GTO Wizard BB vs SB игра после чека от агрессора, атака в чек, выводим на стек к риверу 110% + 110% + Пуш",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-29",
+    "duration": "2 ч. 06 мин.",
+    "link": "https://t.me/c/2571863441/101",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 57,
+    "file": "20250830_INCEPT",
+    "title": "Работа в GTO Wizard BB vs SB игра против контбета от агрессора",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-08-30",
+    "duration": "1 ч. 53 мин.",
+    "link": "https://t.me/c/2571863441/102",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 58,
+    "file": "20250902_FREDIK",
+    "title": "Разбор базы топ-бота, играющего в 19бб/100 на лимитах NL20-NL50",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-02",
+    "duration": "2 ч. 06 мин.",
+    "link": "https://t.me/c/2571863441/103",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 59,
+    "file": "20250904_FREDIK",
+    "title": "Разбор базы топ-бота, играющего в 19бб/100 на лимитах NL20-NL50 Часть 2",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-04",
+    "duration": "2 ч. 12 мин.",
+    "link": "https://t.me/c/2571863441/105",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 60,
+    "file": "20250905_INCEPT",
+    "title": "Работа в GTO Wizard BB vs SB Часть 3 (Практика)",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-09-05",
+    "duration": "2 ч. 00 мин.",
+    "link": "https://t.me/c/2571863441/106",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 61,
+    "file": "20250906_INCEPT",
+    "title": "Работа в GTO Wizard BB vs SB Часть 4 (Практика)",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-09-06",
+    "duration": "2 ч. 08 мин.",
+    "link": "https://t.me/c/2571863441/107",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 62,
+    "file": "20250909_FREDIK",
+    "title": "4бет пот, полное погружение, SBvsBB",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-09",
+    "duration": "2 ч. 04 мин.",
+    "link": "https://t.me/c/2571863441/108",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 63,
+    "file": "20250911_FREDIK",
+    "title": "4бет пот, полное погружение, SBvsBB Часть 2",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-11",
+    "duration": "1 ч. 49 мин.",
+    "link": "https://t.me/c/2571863441/109",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 64,
+    "file": "20250915_INCEPT",
+    "title": "Работа в GTO Wizard AI Серия уроков по защите на BB Часть 1",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-09-15",
+    "duration": "2 ч. 11 мин.",
+    "link": "https://t.me/c/2571863441/110",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 65,
+    "file": "20250916_BOT_AI_P1",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 1 Общий взгляд Префлоп",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-16",
+    "duration": "2 ч. 41 мин.",
+    "link": "https://t.me/c/2571863441/111",
+    "tags": ["Боты", "Preflop", "Fredik"]
+  },
+  {
+    "number": 66,
+    "file": "20250917_INCEPT",
+    "title": "Работа в GTO Wizard AI Серия уроков по защите на BB Часть 2",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-09-17",
+    "duration": "2 ч. 12 мин.",
+    "link": "https://t.me/c/2571863441/112",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 67,
+    "file": "20250918_BOT_AI_P2",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 2 Глубокое изучение раздач с префлопа Логика выбора сайзингов",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-18",
+    "duration": "2 ч. 51 мин.",
+    "link": "https://t.me/c/2571863441/113",
+    "tags": ["Боты", "Preflop", "Fredik"]
+  },
+  {
+    "number": 68,
+    "file": "20250921_INCEPT",
+    "title": "Стрим тренера на NL25 R&C",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-09-21",
+    "duration": "3 ч. 27 мин.",
+    "link": "https://t.me/c/2571863441/114",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 69,
+    "file": "20250923_BOT_AI_P3",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 3 Постфлоп SRP в позиции за рейзера",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-23",
+    "duration": "2 ч. 19 мин.",
+    "link": "",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 70,
+    "file": "20250924_FREDIK",
+    "title": "Разбор сессии 3 стола R&C NL10 (рабочий лимит NL50)",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-24",
+    "duration": "2 ч. 38 мин.",
+    "link": "https://t.me/c/2571863441/115",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 71,
+    "file": "20250925_BOT_AI_P4",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 4 Постфлоп Глубокое изучение спота BUvsBB",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-25",
+    "duration": "2 ч. 21 мин.",
+    "link": "https://t.me/c/2571863441/123",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 72,
+    "file": "20250926_INCEPT",
+    "title": "Работа в GTO Wizard AI Серия уроков по защите на BB Часть 3",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-09-26",
+    "duration": "2 ч. 02 мин.",
+    "link": "https://t.me/c/2571863441/124",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 73,
+    "file": "20250930_BOT_AI_P5",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 5 Постфлоп SRP без позиции за рейзера",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-09-30",
+    "duration": "2 ч. 54 мин.",
+    "link": "https://t.me/c/2571863441/125",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 74,
+    "file": "20251001_INCEPT",
+    "title": "Разбор сессии ученика R&C 3 стола Быстрый покер",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-01",
+    "duration": "2 ч. 09 мин.",
+    "link": "https://t.me/c/2571863441/126",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 75,
+    "file": "20251002_BOT_AI_P6",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 6 Постфлоп SRP без позиции за рейзера (BvB)",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-02",
+    "duration": "3 ч. 00 мин.",
+    "link": "https://t.me/c/2571863441/127",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 76,
+    "file": "20251003_INCEPT",
+    "title": "Разбор сессии ученика R&C 3 стола Быстрый покер Часть 2",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-03",
+    "duration": "1 ч. 51 мин.",
+    "link": "https://t.me/c/2571863441/128",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 77,
+    "file": "20251004_INCEPT",
+    "title": "Рокет-солвер, подстройки под фишей в позе и без Адаптации на префлопе",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-04",
+    "duration": "1 ч. 54 мин.",
+    "link": "https://t.me/c/2571863441/129",
+    "tags": ["Preflop", "Incept"]
+  },
+  {
+    "number": 78,
+    "file": "20251007_BOT_AI_P7",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 7 Постфлоп 3BP в позиции за рейзера",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-07",
+    "duration": "2 ч. 39 мин.",
+    "link": "https://t.me/c/2571863441/130",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 79,
+    "file": "20251008_INCEPT",
+    "title": "Разбор сессии ученика R&C NL25",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-08",
+    "duration": "2 ч. 31 мин.",
+    "link": "https://t.me/c/2571863441/131",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 80,
+    "file": "20251009_BOT_AI_P8",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 8 Постфлоп 3BP без позиции за рейзера",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-09",
+    "duration": "2 ч. 52 мин.",
+    "link": "https://t.me/c/2571863441/132",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 81,
+    "file": "20251010_INCEPT",
+    "title": "Разбор сессии ученика R&C NL25 Часть 2",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-10",
+    "duration": "2 ч. 05 мин.",
+    "link": "https://t.me/c/2571863441/133",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 82,
+    "file": "20251012_ClubGG",
+    "title": "Стрим Обзор приложения + Игра (Ante/BombPot)",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-12",
+    "duration": "1 ч. 52 мин.",
+    "link": "https://t.me/c/2571863441/134",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 83,
+    "file": "20251014_BOT_AI_P9",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 9 Постфлоп 3BP без позиции за рейзера (продолжение)",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-14",
+    "duration": "2 ч. 55 мин.",
+    "link": "https://t.me/c/2571863441/135",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 84,
+    "file": "20251015_INCEPT",
+    "title": "Работа в RocketSolver 4бет поты Префлоп, Нодлоки",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-15",
+    "duration": "1 ч. 53 мин.",
+    "link": "https://t.me/c/2571863441/136",
+    "tags": ["Solver", "Preflop", "Incept"]
+  },
+  {
+    "number": 85,
+    "file": "20251016_BOT_AI_P10",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 10 Постфлоп Игра коллером без позиции, Мультипоты",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-16",
+    "duration": "2 ч. 53 мин.",
+    "link": "https://t.me/c/2571863441/137",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 86,
+    "file": "20251017_INCEPT",
+    "title": "Разбор сессии, Быстрый покер 4 стола Pokerdom",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-17",
+    "duration": "2 ч. 46 мин.",
+    "link": "https://t.me/c/2571863441/139",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 87,
+    "file": "20251020_GTO_Profiles",
+    "title": "Профили в GTO Wizard AI Разбор и сравнение стратегий на различных текстурах Обзор функционала",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-20",
+    "duration": "1 ч. 00 мин.",
+    "link": "https://t.me/c/2571863441/141",
+    "tags": ["Solver", "Fredik"]
+  },
+  {
+    "number": 88,
+    "file": "20251020_FREDIK",
+    "title": "Игра тренера на лимите NL10 (Pokerdom)",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-20",
+    "duration": "1 ч. 01 мин.",
+    "link": "https://t.me/c/2571863441/142",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 89,
+    "file": "20251021_BOT_AI_P11",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 11 Постфлоп Игра коллером без позиции, SB",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-21",
+    "duration": "2 ч. 37 мин.",
+    "link": "https://t.me/c/2571863441/143",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 90,
+    "file": "20251022_INCEPT",
+    "title": "Профили в GTO Wizard AI Разбор и сравнение стратегий на различных текстурах Игра против телефонов и маньяков",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-22",
+    "duration": "1 ч. 51 мин.",
+    "link": "https://t.me/c/2571863441/144",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 91,
+    "file": "20251023_BOT_AI_P12",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 12 Постфлоп Игра коллером без позиции, ББ против ранних",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-23",
+    "duration": "2 ч. 48 мин.",
+    "link": "https://t.me/c/2571863441/145",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 92,
+    "file": "20251024_INCEPT",
+    "title": "Профили в GTO Wizard AI Разбор и сравнение стратегий на различных текстурах",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-24",
+    "duration": "1 ч. 42 мин.",
+    "link": "https://t.me/c/2571863441/146",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 93,
+    "file": "20251028_BOT_AI_P13",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 13 Постфлоп Игра коллером без позиции, BB vs CO",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-28",
+    "duration": "2 ч. 38 мин.",
+    "link": "https://t.me/c/2571863441/147",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 94,
+    "file": "20251029_INCEPT",
+    "title": "GTO Wizard Elite AI, работа вместе с учениками школы Тема: Игра в мультипотах",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-29",
+    "duration": "2 ч. 17 мин.",
+    "link": "https://t.me/c/2571863441/148",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 95,
+    "file": "20251030_BOT_AI_P14",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 14 Постфлоп Игра коллером без позиции, важнейший спот BB vs BU Часть 1",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-30",
+    "duration": "2 ч. 46 мин.",
+    "link": "https://t.me/c/2571863441/149",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 96,
+    "file": "20251031_FREDIK",
+    "title": "Прожарка ученика с микролимитов, разбор сессии в сети iPoker",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-10-31",
+    "duration": "1 ч. 51 мин.",
+    "link": "https://t.me/c/2571863441/150",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 97,
+    "file": "20251031_INCEPT",
+    "title": "GTO Wizard Elite AI, работа вместе с учениками школы Тема: Игра на ББ, чек-рейзы",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-10-31",
+    "duration": "2 ч. 03 мин.",
+    "link": "https://t.me/c/2571863441/151",
+    "tags": ["Solver", "Incept"]
+  },
+  {
+    "number": 98,
+    "file": "20251103_FREDIK",
+    "title": "Индивидуальная тренировка Разбор игры в ClubGG",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-11-03",
+    "duration": "2 ч. 18 мин.",
+    "link": "https://t.me/c/2571863441/153",
+    "tags": ["Fredik"]
+  },
+  {
+    "number": 99,
+    "file": "20251104_BOT_AI_P15",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 15 Постфлоп Игра коллером без позиции, важнейший спот BB vs BU Часть 2",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-11-04",
+    "duration": "2 ч. 18 мин.",
+    "link": "https://t.me/c/2571863441/154",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 100,
+    "file": "20251105_INCEPT",
+    "title": "Разбор сессии ученика, быстрый покер R&C NL25",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-11-05",
+    "duration": "2 ч. 23 мин.",
+    "link": "https://t.me/c/2571863441/155",
+    "tags": ["Incept"]
+  },
+  {
+    "number": 101,
+    "file": "20251106_BOT_AI_P16",
+    "title": "Разбор ботов ИИ c NL100-NL200 Часть 16 Постфлоп Игра коллером в позиции, важнейший спот BB vs SB",
+    "trainer": "Илья @Fredik88",
+    "date": "2025-11-06",
+    "duration": "2 ч. 50 мин.",
+    "link": "https://t.me/c/2571863441/156",
+    "tags": ["Боты", "Fredik"]
+  },
+  {
+    "number": 102,
+    "file": "20251107_INCEPT",
+    "title": "Разбор сессии топ-виннера буста NL50 Покердом, 2 стола, Быстрый покер",
+    "trainer": "Александр @Inceptmork",
+    "date": "2025-11-07",
+    "duration": "2 ч. 15 мин.",
+    "link": "https://t.me/c/2571863441/157",
+    "tags": ["Incept"]
+  }
+];
+
+const tagMap = {
+  "Боты": ["BOT_AI", "Разбор топ бота"],
+  "Solver": ["rocket", "wizard"],
+  "Preflop": ["префлоп", "preflop"],
+  "Incept": ["incept"],
+  "Fredik": ["fredik"],
+  "Zager": ["zager"],
+  "Nikita": ["nikita"],
+  "Robert": ["robert"]
+};
+    const searchInput = document.getElementById('search');
+    const container = document.getElementById('trainings');
+    const filtersDiv = document.getElementById('filters');
+    let currentTag = "Все";
+
+    const allTags = ["Все"].concat(Object.keys(tagMap));
+
+    allTags.forEach(tag => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.textContent = tag;
+      btn.onclick = () => { currentTag = tag; renderTrainings(); };
+      filtersDiv.appendChild(btn);
+    });
+
+    renderTrainings();
+
+    function renderTrainings() {
+      const query = searchInput.value.toLowerCase();
+      container.innerHTML = '';
+
+      const filtered = allTrainings.filter(t => {
+        const text = (t.title + ' ' + t.trainer + ' ' + t.date + ' ' + t.file).toLowerCase();
+        const matchesTag = currentTag === "Все" ||
+          (t.tags && t.tags.includes(currentTag));
+        const matchesQuery = text.includes(query);
+        return matchesTag && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#777;">Ничего не найдено</p>';
+        return;
+      }
+
+      filtered.forEach(t => {
+        const block = document.createElement('div');
+        block.className = 'training';
+        block.innerHTML = `
+          <p class="filename"><span class="number">#${t.number}</span>${t.file}</p>
+          <p>Формат: ${t.title}</p>
+          <p>Длительность: ${t.duration}</p>
+          <p>Тренер: ${t.trainer}</p>
+          <p>Дата: ${t.date}</p>
+          <p><a href="${t.link}" target="_blank">Смотреть запись</a></p>
+        `;
+        container.appendChild(block);
+      });
+    }
+
+    searchInput.addEventListener('input', renderTrainings);
+  </script>
+</body>
+</html>
